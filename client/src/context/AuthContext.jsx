@@ -1,27 +1,57 @@
-import { createContext, useContext, useState } from "react";
+import React, { createContext, useState, useContext, useEffect } from "react";
+import userService from "../services/userService";
 
 const AuthContext = createContext();
 
-export const useAuth = () => useContext(AuthContext);
-
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [username, setUsername] = useState("");
 
-  const login = (userData) => {
-    setUser(userData);
+  const checkAuth = () => {
+    const token = localStorage.getItem("token");
+    const storedUsername = localStorage.getItem("username");
+
+    if (token && storedUsername) {
+      setIsLoggedIn(true);
+      setUsername(storedUsername);
+    } else {
+      setIsLoggedIn(false);
+      setUsername("");
+    }
   };
 
-  const logout = async () => {
-    setUser(null);
+  const login = (token, username) => {
+    localStorage.setItem("token", token);
+    localStorage.setItem("username", username);
+    setIsLoggedIn(true);
+    setUsername(username);
   };
 
-  const value = {
-    user,
-    loading,
-    login,
-    logout,
+  const logout = () => {
+    userService.logout();
+    localStorage.removeItem("username");
+    setIsLoggedIn(false);
+    setUsername("");
   };
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  useEffect(() => {
+    checkAuth();
+
+    // 监听自定义事件
+    window.addEventListener("authStateChanged", checkAuth);
+
+    return () => {
+      window.removeEventListener("authStateChanged", checkAuth);
+    };
+  }, []);
+
+  return (
+    <AuthContext.Provider value={{ isLoggedIn, username, login, logout }}>
+      {children}
+    </AuthContext.Provider>
+  );
+};
+
+export const useAuth = () => {
+  return useContext(AuthContext);
 };

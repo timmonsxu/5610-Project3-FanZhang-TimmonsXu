@@ -3,37 +3,50 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import "../styles/rules.css";
 
-const Rules = () => {
-  return (
-    <div className="max-w-2xl mx-auto">
-      <h1 className="text-3xl font-bold mb-6">Game Rules</h1>
-      <div className="space-y-4">
-        <h2 className="text-xl font-semibold">Objective</h2>
-        <p>
-          The objective of Battleship is to sink all of your opponent's ships
-          before they sink all of yours.
-        </p>
-
-        <h2 className="text-xl font-semibold">Setup</h2>
-        <p>
-          Each player places their ships on their own grid. The ships can be
-          placed horizontally or vertically, but not diagonally.
-        </p>
-
-        <h2 className="text-xl font-semibold">Gameplay</h2>
-        <p>
-          Players take turns calling out coordinates to attack. If a ship is
-          hit, the player marks it on their tracking grid. If all of a ship's
-          coordinates are hit, the ship is sunk.
-        </p>
-
-        <h2 className="text-xl font-semibold">Winning</h2>
-        <p>
-          The first player to sink all of their opponent's ships wins the game.
-        </p>
-      </div>
+const Rules = () => (
+  <>
+    <div className="hero-section">
+      <Navbar />
+      <h1>Battleship Game</h1>
     </div>
-  );
-};
+    <div className="container">
+      <h2>Game Rules</h2>
+      <ul>
+        <li>The game board consists of a grid with hidden ships.</li>
+        <li>Click on a cell to attack that location.</li>
+        <li>If you hit a ship, the cell will turn green (✔).</li>
+        <li>If you miss, the cell will turn red (X).</li>
+        <li>The game ends when all ships are hit.</li>
+        <li>Click the "Restart" button to start a new game.</li>
+      </ul>
+
+      <h2>Credits</h2>
+      <h3>Developed by Vivian</h3>
+      <ul>
+        <li>
+          Email:{" "}
+          <a href="mailto:zhang.fan9@northeastern.edu">
+            zhang.fan9@northeastern.edu
+          </a>
+        </li>
+        <li>
+          GitHub:{" "}
+          <a href="https://github.com/fanzhangvivian, " target="_blank">
+            github.com/fanzhangvivian
+          </a>
+        </li>
+        <li>
+          LinkedIn:{" "}
+          <a
+            href="https://www.linkedin.com/in/fan-zhang-17b498271/"
+            target="_blank">
+            linkedin.com/in/fanzhang
+          </a>
+        </li>
+      </ul>
+    </div>
+    <Footer />
+  </>
+);
 
 export default Rules;

@@ -1,110 +1,128 @@
-import { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
-import { useAuth } from "../context/AuthContext";
+import userService from "../services/userService";
+import "../styles/register.css";
 
 const Register = () => {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+  const navigate = useNavigate();
+  const [formData, setFormData] = useState({
+    username: "",
+    password: "",
+    confirmPassword: "",
+  });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
-  const { login } = useAuth();
+
+  // 添加 useEffect 来监听密码变化
+  useEffect(() => {
+    console.log("FormData updated:", formData);
+  }, [formData]);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    console.log(`Input changed - ${name}:`, value);
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    setLoading(true);
 
+    // 添加更详细的调试信息
+    console.log("Submit - FormData:", formData);
+    console.log("Submit - Password:", formData.password);
+    console.log("Submit - Confirm Password:", formData.confirmPassword);
+    console.log(
+      "Submit - Are they equal?",
+      formData.password === formData.confirmPassword
+    );
+    console.log("Submit - Password length:", formData.password.length);
+    console.log(
+      "Submit - Confirm Password length:",
+      formData.confirmPassword.length
+    );
+
+    // 使用 trim() 去除可能的空格
+    const password = formData.password.trim();
+    const confirmPassword = formData.confirmPassword.trim();
+
+    // 验证密码是否匹配
     if (password !== confirmPassword) {
-      setError("Passwords do not match");
+      setError(
+        `Passwords do not match. Password: "${password}", Confirm: "${confirmPassword}"`
+      );
+      setLoading(false);
       return;
     }
 
-    setLoading(true);
-
     try {
-      const response = await axios.post(
-        "http://localhost:5000/api/users/register",
-        { username, password, confirmPassword },
-        { withCredentials: true }
-      );
-
-      login(response.data.user);
-      navigate("/");
+      await userService.register({
+        username: formData.username,
+        password: password,
+        confirmPassword: confirmPassword,
+      });
+      alert("Registration successful! Please login with your new account.");
+      navigate("/login");
     } catch (err) {
-      setError(err.response?.data?.message || "Registration failed");
+      setError(err.message || "Registration failed. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="bg-white p-8 rounded-lg shadow-md w-96">
-        <h2 className="text-2xl font-bold mb-6 text-center">Register</h2>
-        {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-            {error}
-          </div>
-        )}
+    <div className="auth-container">
+      <div className="auth-form">
+        <h2>Register</h2>
+        {error && <div className="error-message">{error}</div>}
         <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2">
-              Username
-            </label>
+          <div className="form-group">
+            <label htmlFor="username">Username</label>
             <input
               type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              id="username"
+              name="username"
+              value={formData.username}
+              onChange={handleChange}
               required
-              minLength={3}
+              minLength="3"
             />
           </div>
-          <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2">
-              Password
-            </label>
+          <div className="form-group">
+            <label htmlFor="password">Password</label>
             <input
               type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              id="password"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
               required
-              minLength={6}
+              minLength="6"
             />
           </div>
-          <div className="mb-6">
-            <label className="block text-gray-700 text-sm font-bold mb-2">
-              Confirm Password
-            </label>
+          <div className="form-group">
+            <label htmlFor="confirmPassword">Confirm Password</label>
             <input
               type="password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              id="confirmPassword"
+              name="confirmPassword"
+              value={formData.confirmPassword}
+              onChange={handleChange}
               required
-              minLength={6}
+              minLength="6"
             />
           </div>
-          <div className="flex items-center justify-between">
-            <button
-              type="submit"
-              disabled={loading}
-              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full">
-              {loading ? "Registering..." : "Register"}
-            </button>
-          </div>
+          <button type="submit" className="submit-button" disabled={loading}>
+            {loading ? "Registering..." : "Register"}
+          </button>
         </form>
-        <div className="mt-4 text-center">
-          <p className="text-sm text-gray-600">
-            Already have an account?{" "}
-            <a href="/login" className="text-blue-500 hover:text-blue-700">
-              Login
-            </a>
-          </p>
-        </div>
+        <p className="auth-link">
+          Already have an account? <a href="/login">Login</a>
+        </p>
       </div>
     </div>
   );
