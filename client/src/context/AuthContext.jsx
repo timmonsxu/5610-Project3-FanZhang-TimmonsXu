@@ -1,5 +1,4 @@
-import { createContext, useContext, useState, useEffect } from "react";
-import axios from "axios";
+import { createContext, useContext, useState } from "react";
 
 const AuthContext = createContext();
 
@@ -7,40 +6,14 @@ export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const response = await axios.get("http://localhost:5000/api/users/me", {
-          withCredentials: true,
-        });
-        setUser(response.data);
-      } catch (error) {
-        setUser(null);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    checkAuth();
-  }, []);
+  const [loading, setLoading] = useState(false);
 
   const login = (userData) => {
     setUser(userData);
   };
 
   const logout = async () => {
-    try {
-      await axios.post(
-        "http://localhost:5000/api/users/logout",
-        {},
-        { withCredentials: true }
-      );
-      setUser(null);
-    } catch (error) {
-      console.error("Logout failed:", error);
-    }
+    setUser(null);
   };
 
   const value = {
@@ -50,9 +23,5 @@ export const AuthProvider = ({ children }) => {
     logout,
   };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {!loading && children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

@@ -1,17 +1,13 @@
-import { useState, useEffect, useRef } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import axios from "axios";
+import { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import io from "socket.io-client";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import "../styles/game.css";
 
 const Game = () => {
   const { gameId } = useParams();
-  const navigate = useNavigate();
   const { user } = useAuth();
-  const socketRef = useRef(null);
 
   const [game, setGame] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -22,57 +18,51 @@ const Game = () => {
   useEffect(() => {
     const fetchGame = async () => {
       try {
-        const response = await axios.get(
-          `http://localhost:5000/api/games/${gameId}`,
-          { withCredentials: true }
-        );
-        setGame(response.data);
-        setIsMyTurn(response.data.currentPlayer === user?.id);
-        setIsGameOver(response.data.status === "completed");
+        // 模拟数据，用于前端开发
+        const mockGame = {
+          player1: { _id: "1", username: "Player 1" },
+          player2: { _id: "2", username: "Player 2" },
+          currentPlayer: "1",
+          status: "active",
+          player1Board: Array(10)
+            .fill()
+            .map(() => Array(10).fill("empty")),
+          player2Board: Array(10)
+            .fill()
+            .map(() => Array(10).fill("empty")),
+        };
+        setGame(mockGame);
+        setIsMyTurn(mockGame.currentPlayer === user?.id);
+        setIsGameOver(mockGame.status === "completed");
       } catch (err) {
-        setError(err.response?.data?.message || "Failed to fetch game");
+        console.error("Error fetching game:", err);
+        setError("Failed to fetch game");
       } finally {
         setLoading(false);
       }
     };
 
     fetchGame();
-
-    // 初始化 WebSocket 连接
-    socketRef.current = io("http://localhost:5000");
-
-    socketRef.current.on("connect", () => {
-      console.log("Connected to WebSocket");
-      socketRef.current.emit("joinGame", gameId);
-    });
-
-    socketRef.current.on("gameUpdate", (updatedGame) => {
-      setGame(updatedGame);
-      setIsMyTurn(updatedGame.currentPlayer === user?.id);
-      setIsGameOver(updatedGame.status === "completed");
-    });
-
-    return () => {
-      if (socketRef.current) {
-        socketRef.current.disconnect();
-      }
-    };
   }, [gameId, user]);
 
   const handleAttack = async (x, y) => {
     if (!isMyTurn || isGameOver) return;
 
     try {
-      const response = await axios.post(
-        `http://localhost:5000/api/games/${gameId}/attack`,
-        { x, y },
-        { withCredentials: true }
-      );
-      setGame(response.data);
-      setIsMyTurn(response.data.currentPlayer === user?.id);
-      setIsGameOver(response.data.status === "completed");
+      // 模拟攻击响应
+      const updatedGame = {
+        ...game,
+        currentPlayer: game.currentPlayer === "1" ? "2" : "1",
+        player2Board: game.player2Board.map((row, rowIndex) =>
+          row.map((cell, colIndex) =>
+            rowIndex === y && colIndex === x ? "hit" : cell
+          )
+        ),
+      };
+      setGame(updatedGame);
+      setIsMyTurn(updatedGame.currentPlayer === user?.id);
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to make move");
+      setError("Failed to make move");
     }
   };
 
