@@ -6,8 +6,10 @@ const { generateBoard } = require("../utils/boardUtils");
 // 创建新游戏
 exports.createGame = async (req, res) => {
   try {
-    const { ships } = req.body;
     const userId = req.user._id;
+
+    // 自动生成船只位置
+    const ships = generateBoard();
 
     // 创建新游戏
     const game = new Game({
@@ -32,6 +34,12 @@ exports.createGame = async (req, res) => {
       status: game.status,
       player1: userId,
       startTime: game.startTime,
+      board: {
+        ships: board.ships,
+        hits: board.hits,
+        currentHits: board.currentHits,
+        isDefeated: board.isDefeated
+      }
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -42,7 +50,6 @@ exports.createGame = async (req, res) => {
 exports.joinGame = async (req, res) => {
   try {
     const { gameId } = req.params;
-    const { ships } = req.body;
     const userId = req.user._id;
 
     // 查找游戏
@@ -60,6 +67,9 @@ exports.joinGame = async (req, res) => {
     if (game.player1.toString() === userId.toString()) {
       return res.status(400).json({ message: "Cannot join your own game" });
     }
+
+    // 自动生成船只位置
+    const ships = generateBoard();
 
     // 更新游戏状态
     game.player2 = userId;
@@ -82,6 +92,12 @@ exports.joinGame = async (req, res) => {
       player1: game.player1,
       player2: userId,
       startTime: game.startTime,
+      board: {
+        ships: board.ships,
+        hits: board.hits,
+        currentHits: board.currentHits,
+        isDefeated: board.isDefeated
+      }
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -289,7 +305,7 @@ exports.getGameDetails = async (req, res) => {
 
     // 获取棋盘信息
     const boards = await Board.find({ gameId: game._id }).select(
-      "userId hits currentHits isDefeated"
+      "userId ships hits currentHits isDefeated"
     );
 
     // 如果用户未登录或是其他用户的游戏，只返回基本信息
