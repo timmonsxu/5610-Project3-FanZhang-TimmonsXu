@@ -13,6 +13,6 @@ router.get("/open", auth, gameController.getOpenGames);
 
 // 公开路由
 router.get("/public", gameController.getPublicGames);
-router.get("/:gameId", gameController.getGameDetails);
+router.get("/:gameId", auth, gameController.getGameDetails);
 
 module.exports = router;
