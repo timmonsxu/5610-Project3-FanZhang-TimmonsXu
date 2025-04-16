@@ -15,9 +15,6 @@ const userService = {
   login: async (credentials) => {
     try {
       const response = await api.post("/users/login", credentials);
-      if (response.data.user?.token) {
-        localStorage.setItem("token", response.data.user.token);
-      }
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
@@ -28,6 +25,16 @@ const userService = {
   getUserInfo: async () => {
     try {
       const response = await api.get("/users/me");
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+
+  // 获取用户排名
+  getUserRankings: async () => {
+    try {
+      const response = await api.get("/users/rankings");
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
@@ -45,8 +52,13 @@ const userService = {
   },
 
   // 登出
-  logout: () => {
-    localStorage.removeItem("token");
+  logout: async () => {
+    try {
+      const response = await api.post("/users/logout");
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
   },
 };
 

@@ -8,9 +8,13 @@ const Navbar = () => {
   const navigate = useNavigate();
   const { isLoggedIn, username, logout } = useAuth();
 
-  const handleLogout = () => {
-    logout();
-    navigate("/login");
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate("/");
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
   };
 
   return (

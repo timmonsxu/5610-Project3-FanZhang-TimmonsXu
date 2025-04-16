@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import userService from "../services/userService";
 import { useAuth } from "../context/AuthContext";
 import "../styles/login.css";
 
@@ -30,12 +29,11 @@ const Login = () => {
 
     try {
       console.log("Attempting to login with:", formData);
-      const response = await userService.login(formData);
+      const response = await login(formData);
       console.log("Login response:", response);
 
       if (response.message === "Login successful") {
         console.log("Login successful");
-        login(response.user.token, formData.username);
         alert("Login successful!");
         console.log("Navigating to home page");
         navigate("/");
