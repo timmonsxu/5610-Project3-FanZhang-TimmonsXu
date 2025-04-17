@@ -3,11 +3,15 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 require("dotenv").config();
+const app = express();
 
 const userRoutes = require("./routes/userRoutes");
 const gameRoutes = require("./routes/gameRoutes");
+// 新增
+const boardRoutes = require("./routes/boardRoutes");
+app.use("/api/boards", boardRoutes);
 
-const app = express();
+
 const PORT = process.env.PORT || 5001;
 
 // Middleware
@@ -46,6 +50,7 @@ app.use((req, res, next) => {
 // Routes
 app.use("/api/users", userRoutes);
 app.use("/api/games", gameRoutes);
+app.use("/api/boards", boardRoutes); 
 
 // MongoDB connection
 mongoose

@@ -2,6 +2,8 @@ const Game = require("../models/Game");
 const Board = require("../models/Board");
 const User = require("../models/User");
 const { generateBoard } = require("../utils/boardUtils");
+const { attachBoardId } = require("../utils/gameUtils");
+
 
 // 创建新游戏
 exports.createGame = async (req, res) => {
@@ -34,12 +36,7 @@ exports.createGame = async (req, res) => {
       status: game.status,
       player1: userId,
       startTime: game.startTime,
-      board: {
-        ships: board.ships,
-        hits: board.hits,
-        currentHits: board.currentHits,
-        isDefeated: board.isDefeated
-      }
+      boardId: board._id
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -92,12 +89,7 @@ exports.joinGame = async (req, res) => {
       player1: game.player1,
       player2: userId,
       startTime: game.startTime,
-      board: {
-        ships: board.ships,
-        hits: board.hits,
-        currentHits: board.currentHits,
-        isDefeated: board.isDefeated
-      }
+      boardId: board._id 
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -106,6 +98,9 @@ exports.joinGame = async (req, res) => {
 
 // 进行移动
 exports.makeMove = async (req, res) => {
+  // console.log("currentTurn:", game.currentTurn.toString());
+  // console.log("request from:", userId.toString());
+
   try {
     const { gameId } = req.params;
     const { x, y } = req.body;
@@ -214,44 +209,136 @@ exports.makeMove = async (req, res) => {
 };
 
 // 获取开放游戏列表
+// exports.getOpenGames = async (req, res) => {
+//   try {
+//     const games = await Game.find({ status: "open" })
+//       .populate("player1", "username")
+//       .select("_id player1 startTime")
+//       .sort({ startTime: -1 });
+
+//     res.json(games);
+//   } catch (error) {
+//     res.status(500).json({ message: error.message });
+//   }
+// };
+// gameController.js
 exports.getOpenGames = async (req, res) => {
   try {
+    const currentUserId = req.user?._id;
+
     const games = await Game.find({ status: "open" })
       .populate("player1", "username")
-      .select("_id player1 startTime")
       .sort({ startTime: -1 });
 
-    res.json(games);
+    const result = await Promise.all(
+      games.map(async (game) => {
+        const board = await Board.findOne({
+          gameId: game._id,
+          userId: game.player1._id
+        }).select("_id");
+
+        return {
+          gameId: game._id,
+          player1: game.player1,
+          startTime: game.startTime,
+          boardId: board?._id || null
+        };
+      })
+    );
+
+    res.json(result);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
+};
+
+
+// 我的开放游戏
+exports.getMyOpenGames = async (req, res) => {
+  const userId = req.user._id;
+  const games = await Game.find({ player1: userId, status: "open" })
+    .populate("player1", "username")
+    .sort({ startTime: -1 });
+
+  const result = await attachBoardId(games, userId);
+  res.json(result);
+};
+
+// 我的进行中游戏
+exports.getMyActiveGames = async (req, res) => {
+  const userId = req.user._id;
+  const games = await Game.find({
+    status: "active",
+    $or: [{ player1: userId }, { player2: userId }],
+  })
+    .populate("player1 player2", "username")
+    .sort({ startTime: -1 });
+
+  const result = await attachBoardId(games, userId);
+  res.json(result);
+};
+
+// 我的已完成游戏
+exports.getMyCompletedGames = async (req, res) => {
+  const userId = req.user._id;
+  const games = await Game.find({
+    status: "completed",
+    $or: [{ player1: userId }, { player2: userId }],
+  })
+    .populate("player1 player2 winner", "username")
+    .sort({ endTime: -1 });
+
+  const result = await attachBoardId(games, userId);
+  res.json(result);
 };
 
 // 获取当前用户的游戏
-exports.getMyGames = async (req, res) => {
-  try {
-    const { status } = req.query;
-    const userId = req.user._id;
+// exports.getMyGames = async (req, res) => {
+//   // 增加active completed open 
+//   try {
+//     const { status } = req.query;
+//     const userId = req.user._id;
 
-    const query = {
-      $or: [{ player1: userId }, { player2: userId }],
-    };
+//     const query = {
+//       $or: [{ player1: userId }, { player2: userId }],
+//     };
 
-    if (status) {
-      query.status = status;
-    }
+//     if (status) {
+//       query.status = status;
+//     }
 
-    const games = await Game.find(query)
-      .populate("player1 player2 winner", "username")
-      .sort({ startTime: -1 });
+//     const games = await Game.find(query)
+//       .populate("player1 player2 winner", "username")
+//       .sort({ startTime: -1 });
 
-    res.json(games);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
+//     res.json(games);
+//   } catch (error) {
+//     res.status(500).json({ message: error.message });
+//   }
+// };
 
 // 获取其他用户的游戏
+// exports.getOtherGames = async (req, res) => {
+//   // 只包含非自己的active，completed games
+//   try {
+//     const userId = req.user._id;
+
+//     const games = await Game.find({
+//       $and: [
+//         { status: { $in: ["active", "completed"] } },
+//         { player1: { $ne: userId } },
+//         { player2: { $ne: userId } },
+//       ],
+//     })
+//       .populate("player1 player2 winner", "username")
+//       .sort({ startTime: -1 });
+
+//     res.json(games);
+//   } catch (error) {
+//     res.status(500).json({ message: error.message });
+//   }
+// };
+
 exports.getOtherGames = async (req, res) => {
   try {
     const userId = req.user._id;
@@ -266,27 +353,107 @@ exports.getOtherGames = async (req, res) => {
       .populate("player1 player2 winner", "username")
       .sort({ startTime: -1 });
 
-    res.json(games);
+    const result = await Promise.all(
+      games.map(async (game) => {
+        const board1 = await Board.findOne({
+          gameId: game._id,
+          userId: game.player1._id
+        }).select("_id hits isDefeated");
+
+        const board2 = await Board.findOne({
+          gameId: game._id,
+          userId: game.player2._id
+        }).select("_id hits isDefeated");
+
+        return {
+          gameId: game._id,
+          status: game.status,
+          player1: game.player1,
+          player2: game.player2,
+          startTime: game.startTime,
+          endTime: game.endTime,
+          winner: game.winner,
+          player1Board: board1 ? {
+            boardId: board1._id,
+            hits: board1.hits,
+            isDefeated: board1.isDefeated
+          } : null,
+          player2Board: board2 ? {
+            boardId: board2._id,
+            hits: board2.hits,
+            isDefeated: board2.isDefeated
+          } : null
+        };
+      })
+    );
+
+    res.json(result);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
+
 
 // 获取公开游戏列表
-exports.getPublicGames = async (req, res) => {
-  try {
-    const { status } = req.query;
-    const query = { status: status || "active" };
+// exports.getPublicGames = async (req, res) => {
+//   try {
+//     const { status } = req.query;
+//     const query = { status: status || "active" };
 
-    const games = await Game.find(query)
-      .populate("player1 player2 winner", "username")
+//     const games = await Game.find(query)
+//       .populate("player1 player2 winner", "username")
+//       .sort({ startTime: -1 });
+
+//     res.json(games);
+//   } catch (error) {
+//     res.status(500).json({ message: error.message });
+//   }
+// };
+
+//GET /api/games/public/active
+exports.getPublicActiveGames = async (req, res) => {
+  try {
+    const games = await Game.find({ status: "active" })
+      .populate("player1 player2", "username")
       .sort({ startTime: -1 });
 
-    res.json(games);
+    res.json(
+      games.map((game) => ({
+        gameId: game._id,
+        status: game.status,
+        player1: game.player1,
+        player2: game.player2,
+        startTime: game.startTime,
+      }))
+    );
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
+
+// GET /api/games/public/completed
+exports.getPublicCompletedGames = async (req, res) => {
+  try {
+    const games = await Game.find({ status: "completed" })
+      .populate("player1 player2 winner", "username")
+      .sort({ endTime: -1 });
+
+    res.json(
+      games.map((game) => ({
+        gameId: game._id,
+        status: game.status,
+        player1: game.player1,
+        player2: game.player2,
+        winner: game.winner,
+        startTime: game.startTime,
+        endTime: game.endTime,
+      }))
+    );
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 
 // 获取游戏详情
 exports.getGameDetails = async (req, res) => {
