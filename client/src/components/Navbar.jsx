@@ -28,9 +28,11 @@ const Navbar = () => {
           </li>
           <li>
             <Link
-              to="/game"
-              className={location.pathname.startsWith("/game") ? "active" : ""}>
-              Game
+              to="/allgames"
+              className={
+                location.pathname.startsWith("/allgames") ? "active" : ""
+              }>
+              All Games
             </Link>
           </li>
           <li>

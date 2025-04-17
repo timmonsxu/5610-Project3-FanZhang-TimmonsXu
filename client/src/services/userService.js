@@ -27,6 +27,11 @@ const userService = {
       const response = await api.get("/users/me");
       return response.data;
     } catch (error) {
+      // 如果是 401 未授权错误，返回 null
+      if (error.response?.status === 401) {
+        return null;
+      }
+      // 其他错误仍然抛出
       throw error.response?.data || error.message;
     }
   },

@@ -6,6 +6,7 @@ const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [username, setUsername] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
 
   const checkAuth = async () => {
     try {
@@ -18,10 +19,17 @@ export const AuthProvider = ({ children }) => {
         setUsername("");
       }
     } catch (error) {
+      console.error("Auth check error:", error);
       setIsLoggedIn(false);
       setUsername("");
+    } finally {
+      setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    checkAuth();
+  }, []);
 
   const login = async (credentials) => {
     try {
@@ -48,12 +56,9 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  useEffect(() => {
-    checkAuth();
-  }, []);
-
   return (
-    <AuthContext.Provider value={{ isLoggedIn, username, login, logout }}>
+    <AuthContext.Provider
+      value={{ isLoggedIn, username, login, logout, isLoading }}>
       {children}
     </AuthContext.Provider>
   );

@@ -1,0 +1,250 @@
+/* AllGames Page Styles */
+
+/* Container Styles */
+.games-page-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 20px;
+  min-height: 1000px;
+}
+
+/* Games Section Styles */
+.games-section {
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  min-height: 200px; /* 改为最小高度 */
+  display: flex;
+  flex-direction: column;
+}
+
+.games-section h2 {
+  color: #2c3e50;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #3498db;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background-color: #f8f9fa;
+}
+
+/* Games Grid Layout */
+.games-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1rem;
+  overflow-y: auto;
+  padding-right: 1rem;
+  flex: 1;
+  max-height: 500px; /* 添加最大高度限制 */
+}
+
+/* 自定义滚动条样式 */
+.games-grid::-webkit-scrollbar {
+  width: 8px;
+}
+
+.games-grid::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.games-grid::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+.games-grid::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Game Card Styles */
+.game-card {
+  background-color: white;
+  border-radius: 6px;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  height: fit-content; /* 让卡片高度适应内容 */
+}
+
+.game-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.game-info {
+  margin-bottom: 1rem;
+}
+
+.game-info p {
+  margin: 0.5rem 0;
+  color: #34495e;
+  font-size: 0.9rem;
+}
+
+.players-info {
+  margin-bottom: 1rem;
+  padding: 0.5rem;
+  background-color: #f1f8ff;
+  border-radius: 4px;
+}
+
+.players-info p {
+  margin: 0.5rem 0;
+  color: #2c3e50;
+  font-weight: 500;
+}
+
+/* Game Actions */
+.game-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 1rem;
+}
+
+.game-actions a {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  text-decoration: none;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+}
+
+.join-button {
+  background-color: #2ecc71;
+  color: white;
+}
+
+.join-button:hover {
+  background-color: #27ae60;
+}
+
+.view-button {
+  background-color: #3498db;
+  color: white;
+}
+
+.view-button:hover {
+  background-color: #2980b9;
+}
+
+.play-button {
+  background-color: #e74c3c;
+  color: white;
+}
+
+.play-button:hover {
+  background-color: #c0392b;
+}
+
+/* Status Indicators */
+.status-indicator {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.status-open {
+  background-color: #f1c40f;
+  color: #2c3e50;
+}
+
+.status-active {
+  background-color: #2ecc71;
+  color: white;
+}
+
+.status-completed {
+  background-color: #95a5a6;
+  color: white;
+}
+
+/* Loading and Error States */
+.loading {
+  text-align: center;
+  padding: 2rem;
+  color: #7f8c8d;
+}
+
+.error-message {
+  color: #e74c3c;
+  background-color: #fadbd8;
+  padding: 1rem;
+  border-radius: 4px;
+  margin: 1rem 0;
+  text-align: center;
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: 2rem;
+  color: #7f8c8d;
+  background-color: #f8f9fa;
+  border-radius: 4px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .games-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .container {
+    padding: 1rem;
+  }
+
+  .games-section {
+    padding: 1rem;
+    min-height: 150px; /* 移动设备上的最小高度 */
+  }
+}
+
+/* Game ID Styling */
+.game-id {
+  font-family: monospace;
+  background-color: #f1f1f1;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  color: #2c3e50;
+}
+
+/* Time Styling */
+.game-time {
+  color: #7f8c8d;
+  font-size: 0.85rem;
+}
+
+/* Winner Highlight */
+.winner-highlight {
+  color: #2ecc71;
+  font-weight: bold;
+}
+
+.spectate-button {
+  display: inline-block;
+  padding: 8px 16px;
+  background-color: #4a90e2;
+  color: white;
+  text-decoration: none;
+  border-radius: 4px;
+  font-weight: 500;
+  transition: background-color 0.3s ease;
+}
+
+.spectate-button:hover {
+  background-color: #357abd;
+}

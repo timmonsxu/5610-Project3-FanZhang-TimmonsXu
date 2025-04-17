@@ -7,6 +7,7 @@ const api = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
+  withCredentials: true, // 添加这行以支持 cookie
 });
 
 // 请求拦截器
@@ -29,8 +30,7 @@ api.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       // 处理未授权错误
-      localStorage.removeItem("token");
-      window.location.href = "/login";
+      // 不再自动重定向到登录页面
     }
     return Promise.reject(error);
   }
