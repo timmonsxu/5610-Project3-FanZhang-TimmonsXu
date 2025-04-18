@@ -94,29 +94,6 @@ exports.joinGame = async (req, res) => {
       return res.status(400).json({ message: "Invalid game ID format" });
     }
 
-    // 检查是否已经存在该用户的棋盘
-    const existingBoard = await Board.findOne({
-      gameId: objectIdGameId,
-      userId: userId,
-    });
-
-    if (existingBoard) {
-      console.log("Board already exists for user:", {
-        gameId: objectIdGameId,
-        userId: userId,
-      });
-      // 如果棋盘已存在，直接返回成功响应
-      const game = await Game.findById(objectIdGameId);
-      return res.json({
-        gameId: game._id,
-        status: game.status,
-        player1: game.player1,
-        player2: userId,
-        startTime: game.startTime,
-        boardId: existingBoard._id,
-      });
-    }
-
     // 使用 findOneAndUpdate 原子操作来更新游戏状态
     const game = await Game.findOneAndUpdate(
       {
