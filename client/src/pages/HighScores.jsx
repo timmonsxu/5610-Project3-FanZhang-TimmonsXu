@@ -15,7 +15,7 @@ const HighScores = () => {
       try {
         const response = await userService.getUserRankings();
         // 只取前10名
-        const topTen = response.slice(0, 10);
+        const topTen = response.slice(0, 15);
         setScores(topTen);
         setError(null);
       } catch (err) {

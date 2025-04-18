@@ -75,9 +75,6 @@ exports.createGame = async (req, res) => {
 
 // 加入游戏
 exports.joinGame = async (req, res) => {
-  const session = await mongoose.startSession();
-  session.startTransaction();
-
   try {
     const { gameId } = req.params;
     const userId = req.user._id;
@@ -89,63 +86,72 @@ exports.joinGame = async (req, res) => {
     });
 
     // 确保 gameId 是 ObjectId
-    const objectIdGameId = mongoose.Types.ObjectId(gameId);
-
-    // 查找游戏
-    const game = await Game.findById(objectIdGameId).session(session);
-    console.log("Found game:", {
-      gameId: game?._id,
-      status: game?.status,
-      player1: game?.player1,
-      player2: game?.player2,
-    });
-
-    if (!game) {
-      await session.abortTransaction();
-      return res.status(404).json({ message: "Game not found" });
+    let objectIdGameId;
+    try {
+      objectIdGameId = new mongoose.Types.ObjectId(gameId);
+    } catch (error) {
+      console.error("Invalid gameId format:", error);
+      return res.status(400).json({ message: "Invalid game ID format" });
     }
 
-    // 检查游戏状态
-    if (game.status !== "open") {
-      await session.abortTransaction();
-      return res.status(400).json({ message: "Game is not open for joining" });
-    }
-
-    // 检查是否是创建者
-    if (game.player1.toString() === userId.toString()) {
-      await session.abortTransaction();
-      return res.status(400).json({ message: "Cannot join your own game" });
-    }
-
-    // 检查并删除可能存在的旧棋盘
+    // 检查是否已经存在该用户的棋盘
     const existingBoard = await Board.findOne({
       gameId: objectIdGameId,
       userId: userId,
-    }).session(session);
-
-    console.log("Existing board check:", {
-      exists: !!existingBoard,
-      boardId: existingBoard?._id,
-      searchCriteria: {
-        gameId: objectIdGameId.toString(),
-        userId: userId.toString(),
-      },
     });
 
     if (existingBoard) {
-      console.log("Deleting existing board:", existingBoard._id);
-      await Board.deleteOne({ _id: existingBoard._id }).session(session);
+      console.log("Board already exists for user:", {
+        gameId: objectIdGameId,
+        userId: userId,
+      });
+      // 如果棋盘已存在，直接返回成功响应
+      const game = await Game.findById(objectIdGameId);
+      return res.json({
+        gameId: game._id,
+        status: game.status,
+        player1: game.player1,
+        player2: userId,
+        startTime: game.startTime,
+        boardId: existingBoard._id,
+      });
     }
+
+    // 使用 findOneAndUpdate 原子操作来更新游戏状态
+    const game = await Game.findOneAndUpdate(
+      {
+        _id: objectIdGameId,
+        status: "open",
+        player1: { $ne: userId }, // 确保不是创建者
+        player2: { $exists: false }, // 确保还没有玩家2
+      },
+      {
+        $set: {
+          player2: userId,
+          status: "active",
+        },
+      },
+      { new: true } // 返回更新后的文档
+    );
+
+    if (!game) {
+      console.log("Game not found or not available for joining:", {
+        gameId: objectIdGameId,
+        userId: userId,
+      });
+      return res.status(400).json({ message: "Game is not open for joining" });
+    }
+
+    console.log("Updated game status to active:", {
+      gameId: game._id,
+      status: game.status,
+      player1: game.player1,
+      player2: game.player2,
+    });
 
     // 自动生成船只位置
     const ships = generateBoard();
     console.log("Generated ships for new board");
-
-    // 更新游戏状态
-    game.player2 = userId;
-    game.status = "active";
-    await game.save({ session });
-    console.log("Updated game status to active");
 
     // 创建玩家2的棋盘
     const board = new Board({
@@ -160,12 +166,8 @@ exports.joinGame = async (req, res) => {
       userId: board.userId.toString(),
     });
 
-    await board.save({ session });
+    await board.save();
     console.log("Successfully saved new board");
-
-    // 提交事务
-    await session.commitTransaction();
-    console.log("Transaction committed successfully");
 
     res.json({
       gameId: game._id,
@@ -176,16 +178,12 @@ exports.joinGame = async (req, res) => {
       boardId: board._id,
     });
   } catch (error) {
-    // 如果发生错误，回滚事务
     console.error("Error in joinGame:", {
       error: error.message,
       stack: error.stack,
       timestamp: new Date(),
     });
-    await session.abortTransaction();
     res.status(500).json({ message: error.message });
-  } finally {
-    session.endSession();
   }
 };
 
@@ -507,12 +505,13 @@ exports.getGameDetails = async (req, res) => {
     const { gameId } = req.params;
     const userId = req.user?._id;
 
-    console.log("=== Game Details Request ===");
-    console.log("Request details:", {
-      gameId,
-      userId: userId?.toString() || "not logged in",
-      timestamp: new Date().toISOString(),
-    });
+    // 打印 game 基础信息
+    // console.log("=== Game Details Request ===");
+    // console.log("Request details:", {
+    //   gameId,
+    //   userId: userId?.toString() || "not logged in",
+    //   timestamp: new Date().toISOString(),
+    // });
 
     // 查找游戏并填充玩家信息
     const game = await Game.findById(gameId).populate(
@@ -525,14 +524,15 @@ exports.getGameDetails = async (req, res) => {
       return res.status(404).json({ message: "Game not found" });
     }
 
-    console.log("✅ Game found:", {
-      gameId: game._id,
-      status: game.status,
-      player1: game.player1?.username,
-      player2: game.player2?.username,
-      currentTurn: game.currentTurn?.toString(),
-      winner: game.winner?.username,
-    });
+    // 打印 game 完整信息
+    // console.log("✅ Game found:", {
+    //   gameId: game._id,
+    //   status: game.status,
+    //   player1: game.player1?.username,
+    //   player2: game.player2?.username,
+    //   currentTurn: game.currentTurn?.toString(),
+    //   winner: game.winner?.username,
+    // });
 
     // 获取两个玩家的棋盘信息
     const [player1Board, player2Board] = await Promise.all([
@@ -540,10 +540,11 @@ exports.getGameDetails = async (req, res) => {
       Board.findOne({ gameId: game._id, userId: game.player2?._id }),
     ]);
 
-    console.log("Boards found:", {
-      player1Board: player1Board ? "found" : "not found",
-      player2Board: player2Board ? "found" : "not found",
-    });
+    // 打印棋盘信息
+    // console.log("Boards found:", {
+    //   player1Board: player1Board ? "found" : "not found",
+    //   player2Board: player2Board ? "found" : "not found",
+    // });
 
     // 检查用户是否是参与者
     const isParticipant =
@@ -551,11 +552,12 @@ exports.getGameDetails = async (req, res) => {
       ((game.player1 && game.player1._id.toString() === userId.toString()) ||
         (game.player2 && game.player2._id.toString() === userId.toString()));
 
-    console.log("User permissions:", {
-      isLoggedIn: !!userId,
-      isParticipant,
-      isSpectator: !isParticipant,
-    });
+    // 打印用户权限信息
+    // console.log("User permissions:", {
+    //   isLoggedIn: !!userId,
+    //   isParticipant,
+    //   isSpectator: !isParticipant,
+    // });
 
     // 构建基础响应
     const response = {
@@ -598,14 +600,15 @@ exports.getGameDetails = async (req, res) => {
       }
     }
 
-    console.log("=== Game Details Response ===");
-    console.log("Response summary:", {
-      gameId: response.gameId,
-      status: response.status,
-      hasPlayer1Board: !!response.player1Board,
-      hasPlayer2Board: !!response.player2Board,
-      shipsVisible: isParticipant,
-    });
+    // 打印响应信息
+    // console.log("=== Game Details Response ===");
+    // console.log("Response summary:", {
+    //   gameId: response.gameId,
+    //   status: response.status,
+    //   hasPlayer1Board: !!response.player1Board,
+    //   hasPlayer2Board: !!response.player2Board,
+    //   shipsVisible: isParticipant,
+    // });
 
     res.json(response);
   } catch (error) {
