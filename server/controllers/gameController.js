@@ -545,6 +545,18 @@ exports.getGameDetails = async (req, res) => {
       player2Board: player2Board ? "found" : "not found",
     });
 
+    // 检查用户是否是参与者
+    const isParticipant =
+      userId &&
+      ((game.player1 && game.player1._id.toString() === userId.toString()) ||
+        (game.player2 && game.player2._id.toString() === userId.toString()));
+
+    console.log("User permissions:", {
+      isLoggedIn: !!userId,
+      isParticipant,
+      isSpectator: !isParticipant,
+    });
+
     // 构建基础响应
     const response = {
       gameId: game._id,
@@ -575,23 +587,15 @@ exports.getGameDetails = async (req, res) => {
         : null,
     };
 
-    // 检查用户权限
-    const isParticipant =
-      userId &&
-      (game.player1._id.toString() === userId.toString() ||
-        (game.player2 && game.player2._id.toString() === userId.toString()));
-
-    console.log("User permissions:", {
-      isLoggedIn: !!userId,
-      isParticipant,
-      isSpectator: !isParticipant,
-    });
-
     // 如果用户未登录或是旁观者，移除敏感信息
     if (!isParticipant) {
       console.log("Removing sensitive information for spectator");
-      delete response.player1Board?.ships;
-      delete response.player2Board?.ships;
+      if (response.player1Board) {
+        delete response.player1Board.ships;
+      }
+      if (response.player2Board) {
+        delete response.player2Board.ships;
+      }
     }
 
     console.log("=== Game Details Response ===");

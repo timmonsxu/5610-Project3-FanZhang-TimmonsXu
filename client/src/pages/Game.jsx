@@ -54,6 +54,9 @@ const Game = () => {
       try {
         // 首先获取游戏状态
         const response = await gameService.getGameDetails(gameId);
+        console.log("Initial game state:", response);
+        console.log("Current turn data:", response.currentTurn);
+        console.log("Current turn username:", response.currentTurn?.username);
 
         // 如果游戏是开放的，且用户不是玩家，则自动加入
         if (
@@ -93,9 +96,8 @@ const Game = () => {
       return;
     }
     if (gameState.currentTurn?.username !== username) {
-      console.log("Not user's turn");
-      setError("It's not your turn!");
-      return;
+      console.log("Not user's turn, ignoring click");
+      return; // 直接返回，不显示错误信息
     }
 
     try {
@@ -113,7 +115,6 @@ const Game = () => {
     }
   };
 
-  console.log("Full game state:", JSON.stringify(gameState, null, 2));
   // 渲染棋盘
   const renderBoard = (board, isOpponent = false) => {
     console.log("Rendering board:", board, "isOpponent:", isOpponent);
@@ -204,9 +205,6 @@ const Game = () => {
       </>
     );
   }
-
-  console.log("Full game state:", JSON.stringify(gameState, null, 2));
-  console.log("Current username:", username);
 
   // 找到当前玩家的棋盘
   const myBoard =

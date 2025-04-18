@@ -16,7 +16,7 @@ router.get("/open", auth, gameController.getOpenGames);
 router.get("/public/active", gameController.getPublicActiveGames);
 router.get("/public/completed", gameController.getPublicCompletedGames);
 
-router.get("/:gameId", gameController.getGameDetails); // 
+router.get("/:gameId", auth, gameController.getGameDetails);
 
 router.get("/my/open", auth, gameController.getMyOpenGames);
 router.get("/my/active", auth, gameController.getMyActiveGames);
