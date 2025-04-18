@@ -54,9 +54,6 @@ const Game = () => {
       try {
         // 首先获取游戏状态
         const response = await gameService.getGameDetails(gameId);
-        console.log("Initial game state:", response);
-        console.log("Current turn data:", response.currentTurn);
-        console.log("Current turn username:", response.currentTurn?.username);
 
         // 如果游戏是开放的，且用户不是玩家，则自动加入
         if (

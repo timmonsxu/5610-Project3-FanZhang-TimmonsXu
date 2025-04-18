@@ -20,19 +20,6 @@ const Home = () => {
       <main>
         <img src="/images/battleshipgif3.gif" alt="Battleship Icon" />
       </main>
-      <div>
-        <button
-          className="mode-btn easy-btn"
-          onClick={() => navigate("/game/easy")}>
-          Easy Mode (Free Play)
-        </button>
-
-        <button
-          className="mode-btn normal-btn"
-          onClick={() => navigate("/game/normal")}>
-          Normal Mode (Battle Mode)
-        </button>
-      </div>
       <Footer />
     </>
   );
