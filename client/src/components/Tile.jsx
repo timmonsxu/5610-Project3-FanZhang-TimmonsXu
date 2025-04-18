@@ -25,6 +25,7 @@ const Tile = ({ tile, x, y, boardType, onClick }) => {
 
   const handleClick = () => {
     if (boardType === "enemy" && onClick && !revealed) {
+      console.log("Tile clicked:", x, y);  
       onClick(x, y);
     }
   };

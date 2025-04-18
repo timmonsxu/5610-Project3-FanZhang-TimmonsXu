@@ -14,7 +14,9 @@ const userService = {
   // 用户登录
   login: async (credentials) => {
     try {
-      const response = await api.post("/users/login", credentials);
+      const response = await api.post("/users/login", credentials, {
+        withCredentials: true, // ✅ 关键一行！登录必须显式带 cookie
+      });
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;

@@ -2,6 +2,8 @@ import React from "react";
 import Tile from "./Tile";
 import "../styles/game.css";
 
+console.log("Rendering GameBoard:", boardType);
+
 const GameBoard = ({ boardType, boardData, onTileClick }) => {
   return (
     <div className={`game-board ${boardType}`}>
