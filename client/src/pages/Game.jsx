@@ -34,7 +34,6 @@ const Game = () => {
       if (response.currentTurn && isLoggedIn) {
         setIsMyTurn(response.currentTurn === userId); // ✅ 更稳定的 ID 比较
       }
-      
     } catch (err) {
       console.error("Error fetching game state:", err);
       setError(err.message || "Failed to fetch game state");
@@ -94,36 +93,29 @@ const Game = () => {
 
   // 处理攻击
   const handleAttack = async (x, y) => {
-
     console.log("Attempting attack at:", x, y);
     console.log("Current game state:", gameState);
     console.log("Current turn:", gameState?.currentTurn);
-    
+
     console.log("Current user:", userId);
     console.log("🧨 About to send attack via gameService.attack()");
-
 
     if (!gameState || gameState.status !== "active") {
       console.log("Game is not active or not loaded");
       return;
     }
-    // if (gameState.currentTurn?.username !== username) {
-    //   console.log("Not user's turn, ignoring click");
-    //   return; // 直接返回，不显示错误信息
-    // }
+
     if (gameState.currentTurn !== userId) {
       console.log("Not user's turn (by ID), ignoring click");
       return;
     }
-    
 
     try {
       setLoading(true);
       setError("");
       console.log("Sending attack request...");
-      const updatedGame = await gameService.attack(gameState.gameId, x, y);
-      console.log("Attack response:", updatedGame);
-      setGameState(updatedGame);
+      await gameService.attack(gameState.gameId, x, y);
+      await fetchGameState();
     } catch (err) {
       console.error("Failed to attack:", err);
       setError(err.message || "Failed to make move. Please try again later.");
@@ -255,7 +247,6 @@ const Game = () => {
         <div className="boards-wrapper">
           {renderBoard(opponentBoard, true)}
           {renderBoard(myBoard)}
-          
         </div>
 
         {gameState.status === "active" && (
@@ -272,7 +263,9 @@ const Game = () => {
           <div className="game-over">
             <h2>Game Over!</h2>
             <p>The winner is: {gameState.winner.username}</p>
-            <button className="restart-btn" onClick={() => navigate("/allgames")}>
+            <button
+              className="restart-btn"
+              onClick={() => navigate("/allgames")}>
               Back to Games
             </button>
           </div>

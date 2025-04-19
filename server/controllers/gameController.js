@@ -168,7 +168,7 @@ exports.joinGame = async (req, res) => {
 exports.makeMove = async (req, res) => {
   // console.log("currentTurn:", game.currentTurn.toString());
   // console.log("request from:", userId.toString());
-  
+
   try {
     const { gameId } = req.params;
     const { x, y } = req.body;
@@ -282,20 +282,6 @@ exports.makeMove = async (req, res) => {
   }
 };
 
-// 获取开放游戏列表
-// exports.getOpenGames = async (req, res) => {
-//   try {
-//     const games = await Game.find({ status: "open" })
-//       .populate("player1", "username")
-//       .select("_id player1 startTime")
-//       .sort({ startTime: -1 });
-
-//     res.json(games);
-//   } catch (error) {
-//     res.status(500).json({ message: error.message });
-//   }
-// };
-// gameController.js
 exports.getOpenGames = async (req, res) => {
   try {
     const games = await Game.find({ status: "open" })
@@ -422,22 +408,6 @@ exports.getOtherGames = async (req, res) => {
   }
 };
 
-// 获取公开游戏列表
-// exports.getPublicGames = async (req, res) => {
-//   try {
-//     const { status } = req.query;
-//     const query = { status: status || "active" };
-
-//     const games = await Game.find(query)
-//       .populate("player1 player2 winner", "username")
-//       .sort({ startTime: -1 });
-
-//     res.json(games);
-//   } catch (error) {
-//     res.status(500).json({ message: error.message });
-//   }
-// };
-
 //GET /api/games/public/active
 exports.getPublicActiveGames = async (req, res) => {
   try {
@@ -488,14 +458,6 @@ exports.getGameDetails = async (req, res) => {
     const { gameId } = req.params;
     const userId = req.user?._id;
 
-    // 打印 game 基础信息
-    // console.log("=== Game Details Request ===");
-    // console.log("Request details:", {
-    //   gameId,
-    //   userId: userId?.toString() || "not logged in",
-    //   timestamp: new Date().toISOString(),
-    // });
-
     // 查找游戏并填充玩家信息
     const game = await Game.findById(gameId).populate(
       "player1 player2 winner",
@@ -507,40 +469,17 @@ exports.getGameDetails = async (req, res) => {
       return res.status(404).json({ message: "Game not found" });
     }
 
-    // 打印 game 完整信息
-    // console.log("✅ Game found:", {
-    //   gameId: game._id,
-    //   status: game.status,
-    //   player1: game.player1?.username,
-    //   player2: game.player2?.username,
-    //   currentTurn: game.currentTurn?.toString(),
-    //   winner: game.winner?.username,
-    // });
-
     // 获取两个玩家的棋盘信息
     const [player1Board, player2Board] = await Promise.all([
       Board.findOne({ gameId: game._id, userId: game.player1._id }),
       Board.findOne({ gameId: game._id, userId: game.player2?._id }),
     ]);
 
-    // 打印棋盘信息
-    // console.log("Boards found:", {
-    //   player1Board: player1Board ? "found" : "not found",
-    //   player2Board: player2Board ? "found" : "not found",
-    // });
-
     // 检查用户是否是参与者
     const isParticipant =
       userId &&
       ((game.player1 && game.player1._id.toString() === userId.toString()) ||
         (game.player2 && game.player2._id.toString() === userId.toString()));
-
-    // 打印用户权限信息
-    // console.log("User permissions:", {
-    //   isLoggedIn: !!userId,
-    //   isParticipant,
-    //   isSpectator: !isParticipant,
-    // });
 
     // 构建基础响应
     const response = {
@@ -583,16 +522,6 @@ exports.getGameDetails = async (req, res) => {
       }
     }
 
-    // 打印响应信息
-    // console.log("=== Game Details Response ===");
-    // console.log("Response summary:", {
-    //   gameId: response.gameId,
-    //   status: response.status,
-    //   hasPlayer1Board: !!response.player1Board,
-    //   hasPlayer2Board: !!response.player2Board,
-    //   shipsVisible: isParticipant,
-    // });
-
     res.json(response);
   } catch (error) {
     console.error("❌ Error in getGameDetails:", {
@@ -602,57 +531,4 @@ exports.getGameDetails = async (req, res) => {
     });
     res.status(500).json({ message: error.message });
   }
-
-  // // 获取游戏详情
-  // exports.getGameDetails = async (req, res) => {
-  //   try {
-  //     const { gameId } = req.params;
-  //     const userId = req.user?._id;
-
-  //     const game = await Game.findById(gameId).populate(
-  //       "player1 player2 winner",
-  //       "username"
-  //     );
-
-  //     if (!game) {
-  //       return res.status(404).json({ message: "Game not found" });
-  //     }
-
-  //     // 获取棋盘信息
-  //     const boards = await Board.find({ gameId: game._id }).select(
-  //       "userId ships hits currentHits isDefeated"
-  //     );
-
-  //     // 如果用户未登录或是其他用户的游戏，只返回基本信息
-  //     if (
-  //       !userId ||
-  //       (game.player1._id.toString() !== userId.toString() &&
-  //         game.player2._id.toString() !== userId.toString())
-  //     ) {
-  //       return res.json({
-  //         gameId: game._id,
-  //         status: game.status,
-  //         player1: game.player1,
-  //         player2: game.player2,
-  //         startTime: game.startTime,
-  //         endTime: game.endTime,
-  //         winner: game.winner,
-  //       });
-  //     }
-
-  //     res.json({
-  //       gameId: game._id,
-  //       status: game.status,
-  //       player1: game.player1,
-  //       player2: game.player2,
-  //       currentTurn: game.currentTurn,
-  //       startTime: game.startTime,
-  //       endTime: game.endTime,
-  //       winner: game.winner,
-  //       boards,
-  //     });
-  //   } catch (error) {
-  //     res.status(500).json({ message: error.message });
-  //   }
-  // };
 };
