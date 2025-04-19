@@ -86,7 +86,7 @@ const Game = () => {
     initializeGame();
 
     // 设置轮询间隔（每5秒更新一次）
-    const intervalId = setInterval(fetchGameState, 5000);
+    const intervalId = setInterval(fetchGameState, 100);
 
     // 清理函数
     return () => clearInterval(intervalId);

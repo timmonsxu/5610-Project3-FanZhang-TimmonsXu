@@ -9,7 +9,8 @@ import gameService from "../services/gameService";
 import "../styles/allGame.css";
 
 const AllGames = () => {
-  const { isLoggedIn, username } = useAuth();
+  // const { isLoggedIn, username } = useAuth();
+  const { isLoggedIn, username, userId } = useAuth();
   const [openGames, setOpenGames] = useState([]);
   const [myOpenGames, setMyOpenGames] = useState([]);
   const [myActiveGames, setMyActiveGames] = useState([]);
@@ -102,11 +103,16 @@ const AllGames = () => {
               View Game
             </Link>
           )}
-          {type === "active" && (
+          {/* {type === "active" && (
             <Link to={`/game/${gameId}`} className="play-button">
               {game.currentTurn?.username === username
                 ? "Your Turn"
                 : "Opponent's Turn"}
+            </Link>
+          )} */}
+          {type === "active" && (
+            <Link to={`/game/${gameId}`} className="play-button">
+              {game.currentTurn === userId ? "Your Turn" : "Opponent's Turn"}
             </Link>
           )}
           {type === "completed" && (
