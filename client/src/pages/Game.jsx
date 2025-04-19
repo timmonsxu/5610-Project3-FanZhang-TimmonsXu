@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import Navbar from "../components/Navbar";
@@ -14,6 +14,7 @@ const Game = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [isMyTurn, setIsMyTurn] = useState(false);
+  const isJoiningRef = useRef(false);
 
   // 获取游戏状态
   const fetchGameState = async () => {
@@ -39,7 +40,11 @@ const Game = () => {
 
   // 加入游戏
   const joinGame = async () => {
+    if (isJoiningRef.current) return;
+
+    isJoiningRef.current = true;
     try {
+      console.log("🚀 joinGame called");
       await gameService.joinGame(gameId);
       // 加入成功后刷新游戏状态
       await fetchGameState();
@@ -50,6 +55,7 @@ const Game = () => {
 
   // 初始加载和轮询
   useEffect(() => {
+    console.log("🔥 useEffect fired");
     const initializeGame = async () => {
       try {
         // 首先获取游戏状态
