@@ -9,7 +9,8 @@ import "../styles/game.css";
 const Game = () => {
   const { gameId } = useParams();
   const navigate = useNavigate();
-  const { isLoggedIn, username } = useAuth();
+  const { isLoggedIn, username, userId } = useAuth(); // ✅ 引入 userId 0418
+  // const { isLoggedIn, username } = useAuth();
   const [gameState, setGameState] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -26,9 +27,13 @@ const Game = () => {
       setGameState(response);
 
       // 检查是否是当前玩家的回合
+      // if (response.currentTurn && isLoggedIn) {
+      //   setIsMyTurn(response.currentTurn.username === username);
+      // }
       if (response.currentTurn && isLoggedIn) {
-        setIsMyTurn(response.currentTurn.username === username);
+        setIsMyTurn(response.currentTurn === userId); // ✅ 更稳定的 ID 比较
       }
+      
     } catch (err) {
       console.error("Error fetching game state:", err);
       setError(err.message || "Failed to fetch game state");
@@ -83,25 +88,34 @@ const Game = () => {
 
   // 处理攻击
   const handleAttack = async (x, y) => {
+
     console.log("Attempting attack at:", x, y);
     console.log("Current game state:", gameState);
-    console.log("Current turn:", gameState?.currentTurn?.username);
-    console.log("Current user:", username);
+    console.log("Current turn:", gameState?.currentTurn);
+    
+    console.log("Current user:", userId);
+    console.log("🧨 About to send attack via gameService.attack()");
+
 
     if (!gameState || gameState.status !== "active") {
       console.log("Game is not active or not loaded");
       return;
     }
-    if (gameState.currentTurn?.username !== username) {
-      console.log("Not user's turn, ignoring click");
-      return; // 直接返回，不显示错误信息
+    // if (gameState.currentTurn?.username !== username) {
+    //   console.log("Not user's turn, ignoring click");
+    //   return; // 直接返回，不显示错误信息
+    // }
+    if (gameState.currentTurn !== userId) {
+      console.log("Not user's turn (by ID), ignoring click");
+      return;
     }
+    
 
     try {
       setLoading(true);
       setError("");
       console.log("Sending attack request...");
-      const updatedGame = await gameService.attack(gameState._id, x, y);
+      const updatedGame = await gameService.attack(gameState.gameId, x, y);
       console.log("Attack response:", updatedGame);
       setGameState(updatedGame);
     } catch (err) {
@@ -227,8 +241,9 @@ const Game = () => {
         </div>
 
         <div className="boards-wrapper">
-          {renderBoard(myBoard)}
           {renderBoard(opponentBoard, true)}
+          {renderBoard(myBoard)}
+          
         </div>
 
         {gameState.status === "active" && (
@@ -245,7 +260,7 @@ const Game = () => {
           <div className="game-over">
             <h2>Game Over!</h2>
             <p>The winner is: {gameState.winner.username}</p>
-            <button className="restart-btn" onClick={() => navigate("/games")}>
+            <button className="restart-btn" onClick={() => navigate("/allgames")}>
               Back to Games
             </button>
           </div>
