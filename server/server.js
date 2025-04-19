@@ -53,10 +53,13 @@ app.use("/api/games", gameRoutes);
 app.use("/api/boards", boardRoutes);
 
 // MongoDB connection
+console.log("🔗  MONGO_URI =", process.env.MONGO_URI);
+
 mongoose
-  .connect(process.env.MONGO_URI)
+  .connect(process.env.MONGO_URI, { dbName: "battleship" })
   .then(() => {
     console.log("✅ Connected to MongoDB");
+    console.log("🗄️  Using DB:", mongoose.connection.db.databaseName); 
     app.listen(PORT, () => {
       console.log(`🚀 Server running on http://localhost:${PORT}`);
     });

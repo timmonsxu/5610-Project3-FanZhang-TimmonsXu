@@ -168,7 +168,7 @@ exports.joinGame = async (req, res) => {
 exports.makeMove = async (req, res) => {
   // console.log("currentTurn:", game.currentTurn.toString());
   // console.log("request from:", userId.toString());
-
+  
   try {
     const { gameId } = req.params;
     const { x, y } = req.body;
@@ -179,6 +179,12 @@ exports.makeMove = async (req, res) => {
     if (!game) {
       return res.status(404).json({ message: "Game not found" });
     }
+
+    console.log("=== makeMove ===", {
+      gameId,
+      currentTurn: game.currentTurn.toString(),
+      requestUser: userId.toString(),
+    });
 
     // 检查游戏状态
     if (game.status !== "active") {
