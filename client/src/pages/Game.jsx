@@ -242,7 +242,13 @@ const Game = () => {
       <div className="game-container">
         <div className="game-info">
           <h2>Game Status: {gameState.status}</h2>
-          <p>Current Turn: {gameState.currentTurn?.username}</p>
+          {/* <p>Current Turn: {gameState.currentTurn?.username}</p> */}
+          <p>
+            Current Turn:{" "}
+            {gameState.currentTurn === gameState.player1._id
+              ? gameState.player1.username
+              : gameState.player2?.username}
+          </p>
           {gameState.winner && <p>Winner: {gameState.winner.username}</p>}
         </div>
 

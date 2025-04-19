@@ -130,7 +130,7 @@ const gameService = {
   // 进行攻击
   attack: async (gameId, x, y) => {
     try {
-      const response = await api.post(`/games/${gameId}/attack`, { x, y });
+      const response = await api.post(`/games/${gameId}/move`, { x, y });
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;

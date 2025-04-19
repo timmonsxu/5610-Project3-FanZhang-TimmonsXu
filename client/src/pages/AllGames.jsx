@@ -124,6 +124,17 @@ const AllGames = () => {
               View Result
             </Link>
           )}
+          {/* ✅ 新增：处理未登录时的公共游戏卡片 */}
+          {type === "public" && game.status === "active" && (
+            <Link to={`/game/${gameId}`} className="spectate-button">
+              Spectate Game
+            </Link>
+          )}
+          {type === "public" && game.status === "completed" && (
+            <Link to={`/game/${gameId}`} className="view-button">
+              View Result
+            </Link>
+          )}
         </div>
       </div>
     );
