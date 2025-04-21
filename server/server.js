@@ -7,11 +7,13 @@ const app = express();
 
 const userRoutes = require("./routes/userRoutes");
 const gameRoutes = require("./routes/gameRoutes");
-// 新增
 const boardRoutes = require("./routes/boardRoutes");
 app.use("/api/boards", boardRoutes);
 
 const PORT = process.env.PORT || 5001;
+
+const cors = require("cors");
+app.use(cors());
 
 // Middleware
 app.use(express.json());
@@ -23,23 +25,19 @@ app.use(
   })
 );
 
-// 添加请求日志中间件
 app.use((req, res, next) => {
   console.log(`\n🔍 ${req.method} ${req.url}`);
   console.log("📝 Headers:", JSON.stringify(req.headers, null, 2));
   console.log("🍪 Cookies:", JSON.stringify(req.cookies, null, 2));
 
-  // 记录请求体
   if (req.body && Object.keys(req.body).length > 0) {
     console.log("📦 Request Body:", JSON.stringify(req.body, null, 2));
   }
 
-  // 记录查询参数
   if (req.query && Object.keys(req.query).length > 0) {
     console.log("🔎 Query Parameters:", JSON.stringify(req.query, null, 2));
   }
 
-  // 记录URL参数
   if (req.params && Object.keys(req.params).length > 0) {
     console.log("🔗 URL Parameters:", JSON.stringify(req.params, null, 2));
   }
@@ -59,7 +57,7 @@ mongoose
   .connect(process.env.MONGO_URI, { dbName: "battleship" })
   .then(() => {
     console.log("✅ Connected to MongoDB");
-    console.log("🗄️  Using DB:", mongoose.connection.db.databaseName); 
+    console.log("🗄️  Using DB:", mongoose.connection.db.databaseName);
     app.listen(PORT, () => {
       console.log(`🚀 Server running on http://localhost:${PORT}`);
     });
