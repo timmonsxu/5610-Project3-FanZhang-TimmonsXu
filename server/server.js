@@ -24,15 +24,16 @@ app.use(
 );
 
 // Serve static files (for React app)
-app.use(express.static(path.join(__dirname, "dist")));
-
-app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "dist", "index.html")); // Path to your index.html in dist
-});
+app.use(express.static(path.join(__dirname, "../client/dist")));
 
 // Default route for the root URL
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "dist", "index.html"));
+  res.sendFile(path.join(__dirname, "../client/dist", "index.html"));
+});
+
+// Catch-all for other routes, useful for SPAs
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "../client/dist", "index.html"));
 });
 
 app.use((req, res, next) => {
