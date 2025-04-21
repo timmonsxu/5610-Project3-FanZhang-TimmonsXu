@@ -12,9 +12,6 @@ app.use("/api/boards", boardRoutes);
 
 const PORT = process.env.PORT || 5001;
 
-const cors = require("cors");
-app.use(cors());
-
 // Middleware
 app.use(express.json());
 app.use(cookieParser());
