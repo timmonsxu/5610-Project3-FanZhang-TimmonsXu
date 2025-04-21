@@ -9,7 +9,7 @@ import "../styles/game.css";
 const Game = () => {
   const { gameId } = useParams();
   const navigate = useNavigate();
-  const { isLoggedIn, username, userId } = useAuth(); // ✅ 引入 userId 0418
+  const { isLoggedIn, username, userId } = useAuth(); 
   // const { isLoggedIn, username } = useAuth();
   const [gameState, setGameState] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -27,12 +27,8 @@ const Game = () => {
       console.log("Game state response:", response);
       setGameState(response);
 
-      // 检查是否是当前玩家的回合
-      // if (response.currentTurn && isLoggedIn) {
-      //   setIsMyTurn(response.currentTurn.username === username);
-      // }
       if (response.currentTurn && isLoggedIn) {
-        setIsMyTurn(response.currentTurn === userId); // ✅ 更稳定的 ID 比较
+        setIsMyTurn(response.currentTurn === userId); 
       }
     } catch (err) {
       console.error("Error fetching game state:", err);
@@ -42,7 +38,6 @@ const Game = () => {
     }
   };
 
-  // 加入游戏
   const joinGame = async () => {
     if (isJoiningRef.current) return;
 
@@ -50,22 +45,19 @@ const Game = () => {
     try {
       console.log("🚀 joinGame called");
       await gameService.joinGame(gameId);
-      // 加入成功后刷新游戏状态
       await fetchGameState();
     } catch (err) {
       setError(err.message || "Failed to join game");
     }
   };
 
-  // 初始加载和轮询
   useEffect(() => {
     console.log("🔥 useEffect fired");
     const initializeGame = async () => {
       try {
-        // 首先获取游戏状态
+
         const response = await gameService.getGameDetails(gameId);
 
-        // 如果游戏是开放的，且用户不是玩家，则自动加入
         if (
           response.status === "open" &&
           response.player1.username !== username &&
@@ -84,14 +76,12 @@ const Game = () => {
 
     initializeGame();
 
-    // 设置轮询间隔（每5秒更新一次）
     const intervalId = setInterval(fetchGameState, 100);
 
-    // 清理函数
     return () => clearInterval(intervalId);
   }, [gameId, isLoggedIn, username]);
 
-  // 处理攻击
+
   const handleAttack = async (x, y) => {
     console.log("Attempting attack at:", x, y);
     console.log("Current game state:", gameState);
@@ -124,7 +114,6 @@ const Game = () => {
     }
   };
 
-  // 渲染棋盘
   const renderBoard = (board, isOpponent = false) => {
     console.log("Rendering board:", board, "isOpponent:", isOpponent);
     if (!board) {
@@ -215,7 +204,6 @@ const Game = () => {
     );
   }
 
-  // 找到当前玩家的棋盘
   const myBoard =
     username === gameState.player1.username
       ? gameState.player1Board

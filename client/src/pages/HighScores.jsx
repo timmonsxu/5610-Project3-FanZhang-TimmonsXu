@@ -14,7 +14,7 @@ const HighScores = () => {
     const fetchScores = async () => {
       try {
         const response = await userService.getUserRankings();
-        // 只取前10名
+        
         const topTen = response.slice(0, 15);
         setScores(topTen);
         setError(null);
@@ -64,7 +64,7 @@ const HighScores = () => {
                   <td>{score.winRate}%</td>
                 </tr>
               ))}
-              {/* 填充剩余行 */}
+              
               {Array.from({ length: 10 - scores.length }).map((_, index) => (
                 <tr key={`empty-${index}`}>
                   <td>{scores.length + index + 1}</td>

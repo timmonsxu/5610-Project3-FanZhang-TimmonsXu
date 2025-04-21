@@ -46,7 +46,7 @@ const boardSchema = new mongoose.Schema(
     totalCells: {
       type: Number,
       required: true,
-      default: 17, // 5 + 4 + 3 + 3 + 2 = 17 cells for all ships
+      default: 17, 
     },
     currentHits: {
       type: Number,
@@ -62,7 +62,7 @@ const boardSchema = new mongoose.Schema(
   }
 );
 
-// 添加索引以提高查询性能
+
 boardSchema.index({ gameId: 1, userId: 1 }, { unique: true });
 
 const Board = mongoose.model("Board", boardSchema);

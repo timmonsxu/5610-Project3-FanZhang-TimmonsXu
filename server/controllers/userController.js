@@ -35,7 +35,7 @@ exports.register = async (req, res) => {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
-      maxAge: 24 * 60 * 60 * 1000, // 24 hours
+      maxAge: 24 * 60 * 60 * 1000, 
     });
 
     res.status(201).json({
@@ -61,7 +61,7 @@ exports.login = async (req, res) => {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
-    // Check password
+
     const isMatch = await user.comparePassword(password);
     if (!isMatch) {
       return res.status(401).json({ message: "Invalid credentials" });
@@ -77,7 +77,7 @@ exports.login = async (req, res) => {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
-      maxAge: 24 * 60 * 60 * 1000, // 24 hours
+      maxAge: 24 * 60 * 60 * 1000, 
     });
 
     res.json({
@@ -108,18 +108,18 @@ exports.getCurrentUser = async (req, res) => {
   }
 };
 
-// 获取用户排名
+
 exports.getUserRankings = async (req, res) => {
   try {
     const users = await User.find()
       .select("username wins losses")
       .sort([
-        ["wins", -1], // 首先按胜场数降序
-        ["losses", 1], // 然后按败场数升序
-        ["username", 1], // 最后按用户名升序
+        ["wins", -1], 
+        ["losses", 1], 
+        ["username", 1], 
       ]);
 
-    // 添加排名
+    
     const rankedUsers = users.map((user, index) => ({
       rank: index + 1,
       username: user.username,

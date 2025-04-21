@@ -20,7 +20,7 @@ const Home = () => {
       <main>
         <img src="/images/battleshipgif3.gif" alt="Battleship Icon" />
       </main>
-      <Footer />
+      
     </>
   );
 };

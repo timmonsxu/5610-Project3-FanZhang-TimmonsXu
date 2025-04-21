@@ -28,7 +28,6 @@ const AllGames = () => {
         setError("");
 
         if (isLoggedIn) {
-          // 获取登录用户的所有游戏数据
           const [open, myOpen, active, completed, other] = await Promise.all([
             gameService.getOpenGames(),
             gameService.getMyOpenGames(),
@@ -43,7 +42,7 @@ const AllGames = () => {
           setMyCompletedGames(completed);
           setOtherGames(other);
         } else {
-          // 获取未登录用户的公开游戏数据
+
           const [active, completed] = await Promise.all([
             gameService.getPublicActiveGames(),
             gameService.getPublicCompletedGames(),
@@ -74,7 +73,6 @@ const AllGames = () => {
     const isOpponent = game.player2?.username === username;
     const isWinner = game.winner?.username === username;
 
-    // 确保使用正确的游戏ID
     const gameId = game._id || game.gameId;
 
     return (
@@ -130,7 +128,6 @@ const AllGames = () => {
               View Result
             </Link>
           )}
-          {/* ✅ 新增：处理未登录时的公共游戏卡片 */}
           {type === "public" && game.status === "active" && (
             <Link to={`/game/${gameId}`} className="spectate-button">
               Spectate Game

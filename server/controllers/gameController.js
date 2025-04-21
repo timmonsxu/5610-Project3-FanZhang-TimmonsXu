@@ -5,7 +5,7 @@ const { generateBoard } = require("../utils/boardUtils");
 const { attachBoardId } = require("../utils/gameUtils");
 const mongoose = require("mongoose");
 
-// 创建新游戏
+
 exports.createGame = async (req, res) => {
   const session = await mongoose.startSession();
   session.startTransaction();
@@ -18,10 +18,10 @@ exports.createGame = async (req, res) => {
       timestamp: new Date(),
     });
 
-    // 自动生成船只位置
+    
     const ships = generateBoard();
 
-    // 创建新游戏
+    
     const game = new Game({
       player1: userId,
       currentTurn: userId,
@@ -33,7 +33,7 @@ exports.createGame = async (req, res) => {
       player1: game.player1,
     });
 
-    // 创建玩家1的棋盘
+    
     const board = new Board({
       gameId: game._id,
       userId: userId,
@@ -49,7 +49,7 @@ exports.createGame = async (req, res) => {
     await board.save({ session });
     console.log("Successfully saved player1 board");
 
-    // 提交事务
+    
     await session.commitTransaction();
     console.log("Transaction committed successfully");
 
@@ -73,7 +73,7 @@ exports.createGame = async (req, res) => {
   }
 };
 
-// 加入游戏
+
 exports.joinGame = async (req, res) => {
   try {
     const { gameId } = req.params;
@@ -85,7 +85,7 @@ exports.joinGame = async (req, res) => {
       timestamp: new Date(),
     });
 
-    // 确保 gameId 是 ObjectId
+    
     let objectIdGameId;
     try {
       objectIdGameId = new mongoose.Types.ObjectId(gameId);
@@ -94,13 +94,13 @@ exports.joinGame = async (req, res) => {
       return res.status(400).json({ message: "Invalid game ID format" });
     }
 
-    // 使用 findOneAndUpdate 原子操作来更新游戏状态
+    
     const game = await Game.findOneAndUpdate(
       {
         _id: objectIdGameId,
         status: "open",
-        player1: { $ne: userId }, // 确保不是创建者
-        player2: { $exists: false }, // 确保还没有玩家2
+        player1: { $ne: userId }, 
+        player2: { $exists: false }, 
       },
       {
         $set: {
@@ -108,7 +108,7 @@ exports.joinGame = async (req, res) => {
           status: "active",
         },
       },
-      { new: true } // 返回更新后的文档
+      { new: true } 
     );
 
     if (!game) {
@@ -126,11 +126,11 @@ exports.joinGame = async (req, res) => {
       player2: game.player2,
     });
 
-    // 自动生成船只位置
+    
     const ships = generateBoard();
     console.log("Generated ships for new board");
 
-    // 创建玩家2的棋盘
+    
     const board = new Board({
       gameId: objectIdGameId,
       userId: userId,
@@ -164,7 +164,7 @@ exports.joinGame = async (req, res) => {
   }
 };
 
-// 进行移动
+
 exports.makeMove = async (req, res) => {
   // console.log("currentTurn:", game.currentTurn.toString());
   // console.log("request from:", userId.toString());
@@ -174,7 +174,7 @@ exports.makeMove = async (req, res) => {
     const { x, y } = req.body;
     const userId = req.user._id;
 
-    // 查找游戏
+    
     const game = await Game.findById(gameId);
     if (!game) {
       return res.status(404).json({ message: "Game not found" });
@@ -186,17 +186,17 @@ exports.makeMove = async (req, res) => {
       requestUser: userId.toString(),
     });
 
-    // 检查游戏状态
+    
     if (game.status !== "active") {
       return res.status(400).json({ message: "Game is not active" });
     }
 
-    // 检查是否是当前玩家的回合
+    
     if (game.currentTurn.toString() !== userId.toString()) {
       return res.status(400).json({ message: "Not your turn" });
     }
 
-    // 确定对手
+    
     const opponentId =
       game.player1.toString() === userId.toString()
         ? game.player2
@@ -212,7 +212,7 @@ exports.makeMove = async (req, res) => {
       return res.status(404).json({ message: "Opponent board not found" });
     }
 
-    // 检查是否已经攻击过这个位置
+    
     const existingHit = opponentBoard.hits.find(
       (hit) => hit.x === x && hit.y === y
     );
@@ -220,7 +220,7 @@ exports.makeMove = async (req, res) => {
       return res.status(400).json({ message: "Position already attacked" });
     }
 
-    // 检查是否击中船只
+    
     let hit = false;
     let shipSunk = false;
     let gameOver = false;
@@ -231,7 +231,7 @@ exports.makeMove = async (req, res) => {
         hit = true;
         position.hit = true;
 
-        // 检查船只是否被击沉
+        
         const allPositionsHit = ship.positions.every((pos) => pos.hit);
         if (allPositionsHit) {
           shipSunk = true;
@@ -240,26 +240,26 @@ exports.makeMove = async (req, res) => {
       }
     }
 
-    // 记录攻击
+    
     opponentBoard.hits.push({ x, y, hit });
     if (hit) {
       opponentBoard.currentHits += 1;
     }
 
-    // 检查游戏是否结束
+    
     if (opponentBoard.currentHits === opponentBoard.totalCells) {
       opponentBoard.isDefeated = true;
       game.status = "completed";
       game.winner = userId;
       game.endTime = new Date();
 
-      // 更新用户统计
+      
       await User.findByIdAndUpdate(userId, { $inc: { wins: 1 } });
       await User.findByIdAndUpdate(opponentId, { $inc: { losses: 1 } });
 
       gameOver = true;
     } else {
-      // 切换回合
+      
       game.currentTurn = opponentId;
     }
 
@@ -310,7 +310,7 @@ exports.getOpenGames = async (req, res) => {
   }
 };
 
-// 我的开放游戏
+
 exports.getMyOpenGames = async (req, res) => {
   const userId = req.user._id;
   const games = await Game.find({ player1: userId, status: "open" })
@@ -321,7 +321,7 @@ exports.getMyOpenGames = async (req, res) => {
   res.json(result);
 };
 
-// 我的进行中游戏
+
 exports.getMyActiveGames = async (req, res) => {
   const userId = req.user._id;
   const games = await Game.find({
@@ -335,7 +335,7 @@ exports.getMyActiveGames = async (req, res) => {
   res.json(result);
 };
 
-// 我的已完成游戏
+
 exports.getMyCompletedGames = async (req, res) => {
   const userId = req.user._id;
   const games = await Game.find({
@@ -349,7 +349,7 @@ exports.getMyCompletedGames = async (req, res) => {
   res.json(result);
 };
 
-// 获取其他用户的游戏
+
 exports.getOtherGames = async (req, res) => {
   try {
     const userId = req.user._id;
@@ -452,13 +452,13 @@ exports.getPublicCompletedGames = async (req, res) => {
   }
 };
 
-// 获取游戏详情
+
 exports.getGameDetails = async (req, res) => {
   try {
     const { gameId } = req.params;
     const userId = req.user?._id;
 
-    // 查找游戏并填充玩家信息
+    
     const game = await Game.findById(gameId).populate(
       "player1 player2 winner",
       "username"
@@ -469,19 +469,19 @@ exports.getGameDetails = async (req, res) => {
       return res.status(404).json({ message: "Game not found" });
     }
 
-    // 获取两个玩家的棋盘信息
+    
     const [player1Board, player2Board] = await Promise.all([
       Board.findOne({ gameId: game._id, userId: game.player1._id }),
       Board.findOne({ gameId: game._id, userId: game.player2?._id }),
     ]);
 
-    // 检查用户是否是参与者
+    
     const isParticipant =
       userId &&
       ((game.player1 && game.player1._id.toString() === userId.toString()) ||
         (game.player2 && game.player2._id.toString() === userId.toString()));
 
-    // 构建基础响应
+    
     const response = {
       gameId: game._id,
       status: game.status,
@@ -511,7 +511,7 @@ exports.getGameDetails = async (req, res) => {
         : null,
     };
 
-    // 如果用户未登录或是旁观者，移除敏感信息
+    
     if (!isParticipant) {
       console.log("Removing sensitive information for spectator");
       if (response.player1Board) {

@@ -7,7 +7,7 @@ export const AuthProvider = ({ children }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [username, setUsername] = useState("");
   const [isLoading, setIsLoading] = useState(true);
-  const [userId, setUserId] = useState(""); // ✅ 添加 userId0418
+  const [userId, setUserId] = useState(""); 
 
   const checkAuth = async () => {
     try {
@@ -15,7 +15,7 @@ export const AuthProvider = ({ children }) => {
       if (userData) {
         setIsLoggedIn(true);
         setUsername(userData.username);
-        setUserId(userData._id); // ✅ 新增
+        setUserId(userData._id); 
       } else {
         setIsLoggedIn(false);
         setUsername("");
@@ -33,20 +33,6 @@ export const AuthProvider = ({ children }) => {
     checkAuth();
   }, []);
 
-  // const login = async (credentials) => {
-  //   try {
-  //     const response = await userService.login(credentials);
-  //     if (response.message === "Login successful") {
-  //       setIsLoggedIn(true);
-  //       setUsername(credentials.username);
-  //     }
-  //     return response;
-  //   } catch (error) {
-  //     setIsLoggedIn(false);
-  //     setUsername("");
-  //     throw error;
-  //   }
-  // };
   const login = async (credentials) => {
     try {
       const response = await userService.login(credentials);
@@ -54,7 +40,6 @@ export const AuthProvider = ({ children }) => {
         setIsLoggedIn(true);
         setUsername(credentials.username);
   
-        // ✅ 登录成功后再查一次 userInfo 拿到 _id
         const userData = await userService.getUserInfo();
         if (userData?._id) {
           setUserId(userData._id);
@@ -64,7 +49,7 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       setIsLoggedIn(false);
       setUsername("");
-      setUserId(""); // 可选
+      setUserId(""); 
       throw error;
     }
   };

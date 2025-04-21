@@ -13,7 +13,6 @@ const Register = () => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // 添加 useEffect 来监听密码变化
   useEffect(() => {
     console.log("FormData updated:", formData);
   }, [formData]);
@@ -32,7 +31,6 @@ const Register = () => {
     setError("");
     setLoading(true);
 
-    // 添加更详细的调试信息
     console.log("Submit - FormData:", formData);
     console.log("Submit - Password:", formData.password);
     console.log("Submit - Confirm Password:", formData.confirmPassword);
@@ -46,11 +44,9 @@ const Register = () => {
       formData.confirmPassword.length
     );
 
-    // 使用 trim() 去除可能的空格
     const password = formData.password.trim();
     const confirmPassword = formData.confirmPassword.trim();
 
-    // 验证密码是否匹配
     if (password !== confirmPassword) {
       setError(
         `Passwords do not match. Password: "${password}", Confirm: "${confirmPassword}"`

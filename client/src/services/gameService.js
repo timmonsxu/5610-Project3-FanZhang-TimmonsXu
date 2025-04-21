@@ -1,7 +1,7 @@
 import api from "./api";
 
 const gameService = {
-  // 获取开放游戏列表
+  
   getOpenGames: async () => {
     try {
       const response = await api.get("/games/open");
@@ -11,7 +11,7 @@ const gameService = {
     }
   },
 
-  // 获取我的开放游戏
+  
   getMyOpenGames: async () => {
     try {
       const response = await api.get("/games/my/open");
@@ -21,7 +21,7 @@ const gameService = {
     }
   },
 
-  // 获取我的进行中游戏
+  
   getMyActiveGames: async () => {
     try {
       const response = await api.get("/games/my/active");
@@ -31,7 +31,7 @@ const gameService = {
     }
   },
 
-  // 获取我的已完成游戏
+  
   getMyCompletedGames: async () => {
     try {
       const response = await api.get("/games/my/completed");
@@ -41,7 +41,7 @@ const gameService = {
     }
   },
 
-  // 获取其他用户的游戏
+  
   getOtherGames: async () => {
     try {
       const response = await api.get("/games/other");
@@ -51,7 +51,6 @@ const gameService = {
     }
   },
 
-  // 获取公开的进行中游戏
   getPublicActiveGames: async () => {
     try {
       const response = await api.get("/games/public/active");
@@ -61,7 +60,7 @@ const gameService = {
     }
   },
 
-  // 获取公开的已完成游戏
+
   getPublicCompletedGames: async () => {
     try {
       const response = await api.get("/games/public/completed");
@@ -71,7 +70,7 @@ const gameService = {
     }
   },
 
-  // 创建新游戏
+
   createGame: async () => {
     try {
       const response = await api.post("/games");
@@ -81,7 +80,7 @@ const gameService = {
     }
   },
 
-  // 加入游戏
+
   joinGame: async (gameId) => {
     try {
       const response = await api.post(`/games/${gameId}/join`);
@@ -91,7 +90,7 @@ const gameService = {
     }
   },
 
-  // 获取游戏详情
+
   getGameDetails: async (gameId) => {
     try {
       console.log("Fetching game details for gameId:", gameId);
@@ -107,7 +106,7 @@ const gameService = {
     }
   },
 
-  // 进行游戏移动
+
   makeMove: async (gameId, moveData) => {
     try {
       const response = await api.post(`/games/${gameId}/move`, moveData);
@@ -117,7 +116,7 @@ const gameService = {
     }
   },
 
-  // 放置船只
+
   placeShips: async (gameId, ships) => {
     try {
       const response = await api.post(`/games/${gameId}/ships`, { ships });
@@ -127,7 +126,6 @@ const gameService = {
     }
   },
 
-  // 进行攻击
   attack: async (gameId, x, y) => {
     try {
       const response = await api.post(`/games/${gameId}/move`, { x, y });
@@ -137,7 +135,7 @@ const gameService = {
     }
   },
 
-  // 获取游戏状态
+
   getGameStatus: async (gameId) => {
     try {
       const response = await api.get(`/games/${gameId}/status`);

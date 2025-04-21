@@ -37,7 +37,7 @@ const gameSchema = new mongoose.Schema(
   }
 );
 
-// 添加索引以提高查询性能
+
 gameSchema.index({ status: 1 });
 gameSchema.index({ player1: 1, status: 1 });
 gameSchema.index({ player2: 1, status: 1 });

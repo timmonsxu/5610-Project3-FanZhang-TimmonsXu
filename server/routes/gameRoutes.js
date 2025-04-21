@@ -3,7 +3,7 @@ const router = express.Router();
 const gameController = require("../controllers/gameController");
 const auth = require("../middleware/auth");
 
-// 需要认证的路由
+
 router.post("/", auth, gameController.createGame);
 router.post("/:gameId/join", auth, gameController.joinGame);
 router.post("/:gameId/move", auth, gameController.makeMove);
@@ -11,16 +11,15 @@ router.post("/:gameId/move", auth, gameController.makeMove);
 router.get("/other", auth, gameController.getOtherGames);
 router.get("/open", auth, gameController.getOpenGames);
 
-// 公开路由
+
 // router.get("/public", gameController.getPublicGames);
 router.get("/public/active", gameController.getPublicActiveGames);
 router.get("/public/completed", gameController.getPublicCompletedGames);
 
-// router.get("/:gameId", auth, gameController.getGameDetails);
-//0418 修改
+
 const optionalAuth = require("../middleware/optionalAuth");
 
-router.get("/:gameId", optionalAuth, gameController.getGameDetails); // ✅ 替换
+router.get("/:gameId", optionalAuth, gameController.getGameDetails); 
 
 router.get("/my/open", auth, gameController.getMyOpenGames);
 router.get("/my/active", auth, gameController.getMyActiveGames);

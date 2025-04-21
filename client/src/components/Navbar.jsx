@@ -26,7 +26,6 @@ const Navbar = () => {
       setError("");
       const response = await gameService.createGame();
       console.log("Game created successfully:", response);
-      // 创建成功后跳转到游戏页面
       navigate(`/game/${response.gameId}`);
     } catch (err) {
       console.error("Error creating game:", err);
