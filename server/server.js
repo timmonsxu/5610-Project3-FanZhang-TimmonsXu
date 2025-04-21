@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const path = require("path");
+const fs = require("fs");
 require("dotenv").config();
 const app = express();
 
@@ -23,18 +24,24 @@ app.use(
   })
 );
 
-// Serve static files (for React app)
-app.use(express.static(path.join(__dirname, "../client/dist")));
+// Check if dist directory exists before serving static files
+const distPath = path.join(__dirname, "../client/dist");
+if (fs.existsSync(distPath)) {
+  // Serve static files (for React app)
+  app.use(express.static(distPath));
 
-// Default route for the root URL
-app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "../client/dist", "index.html"));
-});
+  // Default route for the root URL
+  app.get("/", (req, res) => {
+    res.sendFile(path.join(distPath, "index.html"));
+  });
 
-// Catch-all for other routes, useful for SPAs
-app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "../client/dist", "index.html"));
-});
+  // Catch-all for other routes, useful for SPAs
+  app.get("*", (req, res) => {
+    res.sendFile(path.join(distPath, "index.html"));
+  });
+} else {
+  console.log("⚠️  No dist directory found, skipping static file serving");
+}
 
 app.use((req, res, next) => {
   console.log(`\n🔍 ${req.method} ${req.url}`);
