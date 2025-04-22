@@ -30,6 +30,18 @@ app.use(
   })
 );
 
+// Add CSP headers
+app.use((req, res, next) => {
+  res.setHeader(
+    "Content-Security-Policy",
+    "default-src 'self'; img-src 'self' data: https:; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline';"
+  );
+  next();
+});
+
+// Serve static files
+app.use(express.static(path.join(__dirname, "../client/dist")));
+
 app.use((req, res, next) => {
   console.log(`\n🔍 ${req.method} ${req.url}`);
   console.log("📝 Headers:", JSON.stringify(req.headers, null, 2));
@@ -54,6 +66,11 @@ app.use((req, res, next) => {
 app.use("/api/users", userRoutes);
 app.use("/api/games", gameRoutes);
 app.use("/api/boards", boardRoutes);
+
+// Serve index.html for all other routes
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "../client/dist", "index.html"));
+});
 
 // MongoDB connection
 console.log("🔗  MONGO_URI =", process.env.MONGO_URI);
