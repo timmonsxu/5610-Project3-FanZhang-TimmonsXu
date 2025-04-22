@@ -1,7 +1,7 @@
 import api from "./api";
-const API = import.meta.env.VITE_API_URL;
 
 const gameService = {
+  
   getOpenGames: async () => {
     try {
       const response = await api.get("/games/open");
@@ -11,6 +11,7 @@ const gameService = {
     }
   },
 
+  
   getMyOpenGames: async () => {
     try {
       const response = await api.get("/games/my/open");
@@ -20,6 +21,7 @@ const gameService = {
     }
   },
 
+  
   getMyActiveGames: async () => {
     try {
       const response = await api.get("/games/my/active");
@@ -29,6 +31,7 @@ const gameService = {
     }
   },
 
+  
   getMyCompletedGames: async () => {
     try {
       const response = await api.get("/games/my/completed");
@@ -38,6 +41,7 @@ const gameService = {
     }
   },
 
+  
   getOtherGames: async () => {
     try {
       const response = await api.get("/games/other");
@@ -56,6 +60,7 @@ const gameService = {
     }
   },
 
+
   getPublicCompletedGames: async () => {
     try {
       const response = await api.get("/games/public/completed");
@@ -64,6 +69,7 @@ const gameService = {
       throw error.response?.data || error.message;
     }
   },
+
 
   createGame: async () => {
     try {
@@ -74,6 +80,7 @@ const gameService = {
     }
   },
 
+
   joinGame: async (gameId) => {
     try {
       const response = await api.post(`/games/${gameId}/join`);
@@ -82,6 +89,7 @@ const gameService = {
       throw error.response?.data || error.message;
     }
   },
+
 
   getGameDetails: async (gameId) => {
     try {
@@ -98,6 +106,7 @@ const gameService = {
     }
   },
 
+
   makeMove: async (gameId, moveData) => {
     try {
       const response = await api.post(`/games/${gameId}/move`, moveData);
@@ -106,6 +115,7 @@ const gameService = {
       throw error.response?.data || error.message;
     }
   },
+
 
   placeShips: async (gameId, ships) => {
     try {
@@ -124,6 +134,7 @@ const gameService = {
       throw error.response?.data || error.message;
     }
   },
+
 
   getGameStatus: async (gameId) => {
     try {
