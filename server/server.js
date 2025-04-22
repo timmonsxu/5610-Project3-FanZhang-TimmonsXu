@@ -24,6 +24,15 @@ app.use(
   })
 );
 
+// Add CSP headers
+app.use((req, res, next) => {
+  res.setHeader(
+    "Content-Security-Policy",
+    "default-src 'self'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; connect-src 'self' https:;"
+  );
+  next();
+});
+
 // Check if dist directory exists before serving static files
 const distPath = path.join(__dirname, "../client/dist");
 if (fs.existsSync(distPath)) {
