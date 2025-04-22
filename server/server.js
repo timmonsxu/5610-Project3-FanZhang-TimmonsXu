@@ -23,6 +23,8 @@ app.use(
   })
 );
 
+console.log(path.join(__dirname, "../client/dist"));
+
 // Serve static files (for React app)
 app.use(express.static(path.join(__dirname, "../client/dist")));
 
