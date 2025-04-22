@@ -1,34 +1,28 @@
+require("dotenv").config({ path: __dirname + "/.env" });
+
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const path = require("path");
-require("dotenv").config();
 const app = express();
+
+// Check required environment variables
+if (!process.env.MONGO_URI) {
+  console.error("❌ MONGO_URI is not defined in environment variables");
+  process.exit(1);
+}
 
 const userRoutes = require("./routes/userRoutes");
 const gameRoutes = require("./routes/gameRoutes");
 const boardRoutes = require("./routes/boardRoutes");
-
 app.use("/api/boards", boardRoutes);
 
 const PORT = process.env.PORT || 5001;
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
-
-app.use(express.static(path.join(__dirname, "../client/dist")));
-
-// Default route to serve React app's index.html for all non-API routes
-app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "../client/dist", "index.html"));
-});
-
 // Middleware
 app.use(express.json());
 app.use(cookieParser());
-
 app.use(
   cors({
     origin: process.env.CLIENT_URL || "http://localhost:5173",
