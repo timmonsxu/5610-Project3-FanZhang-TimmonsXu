@@ -3,7 +3,6 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const path = require("path");
-const fs = require("fs");
 require("dotenv").config();
 const app = express();
 
@@ -24,33 +23,18 @@ app.use(
   })
 );
 
-// Add CSP headers
-app.use((req, res, next) => {
-  res.setHeader(
-    "Content-Security-Policy",
-    "default-src 'self'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; connect-src 'self' https:;"
-  );
-  next();
+// Serve static files (for React app)
+app.use(express.static(path.join(__dirname, "../client/dist")));
+
+// Default route for the root URL
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "../client/dist", "index.html"));
 });
 
-// Check if dist directory exists before serving static files
-const distPath = path.join(__dirname, "../client/dist");
-if (fs.existsSync(distPath)) {
-  // Serve static files (for React app)
-  app.use(express.static(distPath));
-
-  // Default route for the root URL
-  app.get("/", (req, res) => {
-    res.sendFile(path.join(distPath, "index.html"));
-  });
-
-  // Catch-all for other routes, useful for SPAs
-  app.get("*", (req, res) => {
-    res.sendFile(path.join(distPath, "index.html"));
-  });
-} else {
-  console.log("⚠️  No dist directory found, skipping static file serving");
-}
+// Catch-all for other routes, useful for SPAs
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "../client/dist", "index.html"));
+});
 
 app.use((req, res, next) => {
   console.log(`\n🔍 ${req.method} ${req.url}`);
