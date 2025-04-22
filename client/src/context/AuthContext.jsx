@@ -7,7 +7,7 @@ export const AuthProvider = ({ children }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [username, setUsername] = useState("");
   const [isLoading, setIsLoading] = useState(true);
-  const [userId, setUserId] = useState(""); 
+  const [userId, setUserId] = useState("");
 
   const checkAuth = async () => {
     try {
@@ -15,7 +15,7 @@ export const AuthProvider = ({ children }) => {
       if (userData) {
         setIsLoggedIn(true);
         setUsername(userData.username);
-        setUserId(userData._id); 
+        setUserId(userData._id);
       } else {
         setIsLoggedIn(false);
         setUsername("");
@@ -39,7 +39,7 @@ export const AuthProvider = ({ children }) => {
       if (response.message === "Login successful") {
         setIsLoggedIn(true);
         setUsername(credentials.username);
-  
+
         const userData = await userService.getUserInfo();
         if (userData?._id) {
           setUserId(userData._id);
@@ -49,11 +49,10 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       setIsLoggedIn(false);
       setUsername("");
-      setUserId(""); 
+      setUserId("");
       throw error;
     }
   };
-  
 
   const logout = async () => {
     try {
@@ -67,11 +66,10 @@ export const AuthProvider = ({ children }) => {
 
   return (
     <AuthContext.Provider
-      value={{ isLoggedIn, username, userId, login, logout, isLoading }}
-    >
+      value={{ isLoggedIn, username, userId, login, logout, isLoading }}>
       {children}
     </AuthContext.Provider>
-  );  
+  );
 };
 
 export const useAuth = () => {
